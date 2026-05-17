@@ -193,6 +193,23 @@
     border-color 120ms ease;
 }
 
+.icon-card .vx-icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-card .vx-icon > svg,
+.icon-card .vx-icon svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
 .icon-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
@@ -204,6 +221,8 @@
   color: var(--vx-text, #0f172a);
   text-transform: none;
   word-break: break-all;
+  text-align: center;
+  line-height: 1.1;
 }
 
 .demo-card__meta {

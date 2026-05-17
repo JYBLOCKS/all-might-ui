@@ -21,6 +21,7 @@ import {
   Chip,
   Divider,
   Icons,
+  iconNames,
   List,
   Table,
   Text,
@@ -88,38 +89,7 @@ const tableData: TableData[] = [
   { name: "Luis", role: "Editor" },
 ];
 
-const allIconNames: IconName[] = [
-  "spark",
-  "stack",
-  "bolt",
-  "chat",
-  "target",
-  "shield-check",
-  "wave",
-  "cube",
-  "arrow-left",
-  "arrow-right",
-  "arrow-up",
-  "arrow-down",
-  "calendar",
-  "clock",
-  "bell",
-  "mail",
-  "heart",
-  "check",
-  "x",
-  "cloud",
-  "sun",
-  "moon",
-  "plane",
-  "dog",
-  "cat",
-  "paw",
-  "tree",
-  "github",
-  "twitter",
-  "linkedin",
-];
+const allIconNames: IconName[] = [...iconNames];
 
 const apiPropsLookup: Record<string, string[]> = {
   button: ["variant", "size", "block", "disabled", "icon", "type", "onClick"],

@@ -5,6 +5,7 @@ import {
   Badge,
   Chip,
   Icons,
+  iconNames,
   List,
   Table,
   Tooltip,
@@ -61,5 +62,14 @@ describe("DataDisplay components", () => {
       </Tooltip>,
     );
     expect(screen.getByLabelText("spark")).toBeInTheDocument();
+  });
+
+  it("exposes a catalog with at least 200 icons", () => {
+    expect(iconNames.length).toBeGreaterThanOrEqual(200);
+  });
+
+  it("renders a new non-legacy icon from catalog", () => {
+    render(<Icons name="airplay" />);
+    expect(screen.getByLabelText("airplay")).toBeInTheDocument();
   });
 });
