@@ -21,25 +21,27 @@ export default function Table({
   const classes = ["vx-table", className ?? ""].filter(Boolean).join(" ");
 
   return (
-    <table className={classes} {...props}>
-      <thead>
-        <tr>
-          {columns.map((col) => (
-            <th key={String(col.key)}>{col.header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, idx) => (
-          <tr key={idx}>
+    <div className="vx-table-wrap">
+      <table className={classes} {...props}>
+        <thead>
+          <tr>
             {columns.map((col) => (
-              <td key={String(col.key)}>
-                {col.render ? col.render(row) : (row[col.key] as ReactNode)}
-              </td>
+              <th key={String(col.key)}>{col.header}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {data.map((row, idx) => (
+            <tr key={idx}>
+              {columns.map((col) => (
+                <td key={String(col.key)}>
+                  {col.render ? col.render(row) : (row[col.key] as ReactNode)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

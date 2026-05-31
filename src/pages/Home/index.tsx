@@ -520,7 +520,7 @@ export default function Home() {
                 placeholder="Filtra por nombre (ej. arrow, github, dog)"
                 value={iconFilter}
                 onChange={(e) => setIconFilter(e.target.value)}
-                style={{ minWidth: "260px" }}
+                style={{ width: "100%", maxWidth: "320px" }}
               />
               {iconCopied ? (
                 <span className="demo-card__meta">
@@ -748,7 +748,7 @@ export default function Home() {
                 onChange={(e) =>
                   setSnackbarPlacement(e.target.value as SnackbarPlacement)
                 }
-                style={{ minWidth: 160 }}
+                style={{ width: "100%", maxWidth: 240 }}
               >
                 <option value="top-left">Arriba izq</option>
                 <option value="top-center">Arriba centro</option>
@@ -1094,8 +1094,8 @@ export default function Home() {
   return (
     <main className="home">
       <header className="home__header">
-        <Flex align="center" justify="between">
-          <div>
+        <div className="home__header-top">
+          <div className="home__header-copy">
             <p className="eyebrow">Guia de componentes reutilizables</p>
             <h1>All Might UI</h1>
             <p>
@@ -1103,7 +1103,7 @@ export default function Home() {
               snippet y adapta las props a tu app.
             </p>
           </div>
-          <Flex justify="between" align="center">
+          <div className="home__view-toggle">
             <Button
               type="button"
               variant="ghost"
@@ -1120,8 +1120,8 @@ export default function Home() {
             >
               API doc
             </Button>
-          </Flex>
-        </Flex>
+          </div>
+        </div>
       </header>
 
       <div className="home__layout">

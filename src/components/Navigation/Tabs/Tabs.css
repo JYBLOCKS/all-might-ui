@@ -8,6 +8,8 @@
   display: flex;
   gap: 0.4rem;
   border-bottom: 1px solid var(--vx-border, #e2e8f0);
+  overflow-x: auto;
+  padding-bottom: 0.1rem;
 }
 
 .vx-tabs__list button {
@@ -17,6 +19,8 @@
   cursor: pointer;
   color: var(--vx-muted, #475569);
   border-radius: 0.5rem 0.5rem 0 0;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .vx-tabs__list button.is-active {

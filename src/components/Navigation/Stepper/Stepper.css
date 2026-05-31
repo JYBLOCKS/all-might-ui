@@ -105,6 +105,22 @@
   transition: color 200ms ease, opacity 200ms ease;
 }
 
+@media (max-width: 640px) {
+  .vx-stepper {
+    gap: 0.35rem;
+  }
+
+  .vx-stepper__label {
+    font-size: 0.78rem;
+  }
+
+  .vx-stepper__bullet {
+    width: 1.65rem;
+    height: 1.65rem;
+    font-size: 0.8rem;
+  }
+}
+
 .vx-stepper li.is-active .vx-stepper__bullet,
 .vx-stepper li.is-complete .vx-stepper__bullet {
   background: var(--vx-step-to, var(--vx-stepper-active));

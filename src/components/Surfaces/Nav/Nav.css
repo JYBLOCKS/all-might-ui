@@ -8,6 +8,7 @@
   border: 1px solid var(--vx-border, #e2e8f0);
   background: var(--vx-surface-elevated, #ffffff);
   box-shadow: var(--vx-shadow, 0 8px 20px rgba(15, 23, 42, 0.05));
+  flex-wrap: wrap;
 }
 
 .vx-nav__brand {
@@ -19,9 +20,23 @@
   display: inline-flex;
   gap: 0.75rem;
   color: var(--vx-muted, #475569);
+  flex-wrap: wrap;
 }
 
 .vx-nav__actions {
   display: inline-flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .vx-nav {
+    align-items: stretch;
+  }
+
+  .vx-nav__brand,
+  .vx-nav__links,
+  .vx-nav__actions {
+    width: 100%;
+  }
 }

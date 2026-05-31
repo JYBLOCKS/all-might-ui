@@ -24,6 +24,32 @@
   gap: 0.5rem;
 }
 
+@media (max-width: 640px) {
+  .vx-chart {
+    padding: 0.75rem;
+  }
+
+  .vx-chart__row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .vx-chart__pyramid-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .vx-chart__pyramid-row {
+    grid-template-columns: auto auto auto;
+    justify-content: space-between;
+  }
+
+  .vx-chart__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
 .vx-chart__label {
   color: var(--vx-muted, #475569);
   font-size: 0.95rem;

@@ -1,3 +1,9 @@
+.vx-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 0.75rem;
+}
+
 .vx-table {
   width: 100%;
   border-collapse: collapse;
@@ -5,6 +11,7 @@
   border: 1px solid var(--vx-border, #e2e8f0);
   border-radius: 0.75rem;
   overflow: hidden;
+  min-width: 420px;
 }
 
 .vx-table thead {
@@ -17,6 +24,13 @@
   padding: 0.65rem 0.75rem;
   border-bottom: 1px solid var(--vx-border, #e2e8f0);
   text-align: left;
+}
+
+@media (max-width: 640px) {
+  .vx-table th,
+  .vx-table td {
+    white-space: nowrap;
+  }
 }
 
 .vx-table tbody tr:last-child td {

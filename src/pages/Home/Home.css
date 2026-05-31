@@ -1,6 +1,5 @@
 .home {
   min-height: 100vh;
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -13,11 +12,28 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   z-index: 3;
   padding: 1rem;
   background: var(--vx-surface-muted, #f6f8fb);
   border-bottom: 1px solid var(--vx-border, #e2e8f0);
+}
+
+.home__header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home__header-copy {
+  min-width: 0;
+}
+
+.home__view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .home__header h1 {
@@ -46,21 +62,21 @@
 }
 
 .home__layout {
-  height: calc(100vh - 8rem);
   width: 100%;
-  position: absolute;
-  top: 8rem;
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
   flex: 1;
+  padding: 0 1rem 1rem;
 }
 
 .home__sidebar {
-  height: 100%;
+  max-height: calc(100vh - 8rem);
   overflow-y: auto;
   align-self: start;
+  position: sticky;
+  top: 1rem;
   background: var(--vx-surface-elevated, #ffffff);
   border: 1px solid var(--vx-border, #e2e8f0);
   padding: 1rem;
@@ -113,9 +129,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  overflow-y: auto;
-  max-height: 100%;
-  min-height: 0;
+  min-width: 0;
   padding-right: 0.25rem;
 }
 
@@ -253,6 +267,8 @@
   border: 1px solid var(--vx-border, #e2e8f0);
   border-radius: 0.6rem;
   margin: 0 0 1rem;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .demo-card__tabs button {
@@ -314,25 +330,61 @@
   margin-bottom: 0.25rem;
 }
 
-@media (max-width: 640px) {
-  .home {
-    padding: 1.5rem 1rem 2.5rem;
-  }
-
-  .home__header h1 {
-    font-size: 1.6rem;
-  }
-
+@media (max-width: 1024px) {
   .home__layout {
     grid-template-columns: 1fr;
   }
 
   .home__sidebar {
     position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .home__header {
+    padding: 0.9rem;
   }
 
-  .home__content {
-    max-height: none;
-    overflow: visible;
+  .home__header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .home__header h1 {
+    font-size: 1.6rem;
+  }
+
+  .home__view-toggle {
+    width: 100%;
+  }
+
+  .home__view-toggle > * {
+    flex: 1;
+  }
+
+  .home__layout {
+    padding: 0 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .home__sidebar,
+  .demo-card {
+    padding: 0.85rem;
+  }
+
+  .icons-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .icon-card {
+    width: calc(50% - 0.25rem);
+    min-height: 5.5rem;
+    height: auto;
+  }
+
+  .demo-card__code {
+    font-size: 0.8rem;
   }
 }
