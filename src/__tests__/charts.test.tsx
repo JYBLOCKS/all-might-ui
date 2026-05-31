@@ -14,7 +14,7 @@ describe("Charts components", () => {
       />,
     );
     expect(screen.getByText("Ventas")).toBeInTheDocument();
-    expect(screen.getByText("Q1")).toBeInTheDocument();
+    expect(screen.getAllByText("Q1").length).toBeGreaterThan(0);
   });
 
   it("renders Lines", () => {

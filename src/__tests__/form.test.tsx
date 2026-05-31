@@ -76,13 +76,15 @@ describe("Form components", () => {
   });
 
   it("render date/time inputs", () => {
-    render(
+    const { container } = render(
       <>
         <Calendar />
         <DatePicker />
         <TimePicker />
       </>,
     );
-    expect(screen.getAllByRole("textbox").length).toBeGreaterThanOrEqual(1);
+    expect(container.querySelectorAll("input[type='date']").length).toBe(1);
+    expect(container.querySelectorAll("input[type='datetime-local']").length).toBe(1);
+    expect(container.querySelectorAll("input[type='time']").length).toBe(1);
   });
 });
