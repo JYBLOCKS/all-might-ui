@@ -1,0 +1,59 @@
+strict_tdd: true
+context: |
+  all-might-ui is a Node.js/TypeScript ESM, React project.
+  Detected markers: package.json, tsconfig.json, pnpm package manager.
+  Package managers: pnpm.
+  Additional evidence: Test-like files detected (6); examples: src/__tests__/charts.test.tsx, src/__tests__/datadisplay.test.tsx, src/__tests__/feedbacks.test.tsx, src/__tests__/form.test.tsx, src/__tests__/layout-navigation-surfaces.test.tsx.
+  Primary test command: pnpm test.
+  Unit tests: Vitest (pnpm test).
+  Integration tests: Testing Library (pnpm test).
+  E2E tests: none.
+rules:
+  proposal:
+    require_problem_statement: true
+  spec:
+    require_acceptance_criteria: true
+  design:
+    require_tradeoffs: true
+  tasks:
+    protect_review_workload: true
+  apply:
+    test_command: "pnpm test"
+  verify:
+    test_command: "pnpm test"
+testing:
+  detected: "2026-05-30"
+  runner:
+    command: "pnpm test"
+    framework: "Vitest"
+  layers:
+    unit: "Vitest"
+    integration: "Testing Library"
+    e2e: ""
+  commands:
+    unit:
+      - scope: "."
+        command: "pnpm test"
+        framework: "Vitest"
+    integration:
+      - scope: "."
+        command: "pnpm test"
+        framework: "Testing Library"
+    e2e:
+      []
+  coverage:
+    command: ""
+    commands:
+      []
+quality:
+  lint: "pnpm run lint"
+  lint_commands:
+    - scope: "."
+      command: "pnpm run lint"
+      framework: "linter"
+  typecheck: ""
+  typecheck_commands:
+    []
+  format: ""
+  format_commands:
+    []
