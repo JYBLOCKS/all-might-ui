@@ -40,13 +40,13 @@
   "scripts": {
     "dev": "vite",
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "build": "npm run build:app",
+    "build": "pnpm run build:app",
     "build:app": "tsc -b && vite build",
-    "build:lib": "npm run clean && vite build --mode library && tsc -p tsconfig.lib.json",
+    "build:lib": "pnpm run clean && vite build --mode library && tsc -p tsconfig.lib.json",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "prepublishOnly": "npm run lint && npm run test && npm run build"
+    "prepublishOnly": "pnpm run lint && pnpm run test && pnpm run build"
   },
   "peerDependencies": {
     "react": ">=19.2.6",
