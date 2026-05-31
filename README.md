@@ -1,121 +1,72 @@
-# Vertex UI Components
+# all-might-ui
 
-Libreria de componentes UI reutilizables para React + TypeScript, con playground local en Vite para desarrollo y documentación visual.
+Reusable React + TypeScript component library, publish-ready for npm consumption.
 
-Incluye componentes en las categorias:
-- `Form`
-- `Navigation`
-- `Layout`
-- `Surfaces`
-- `DataDisplay`
-- `Feedbacks`
-- `Charts`
-- `Styles` (tema y theme switcher)
-- `Utils`
-
-## Stack
-
-- React 19
-- TypeScript 5
-- Vite 7
-- Vitest + Testing Library
-- ESLint (flat config)
-- Bun (gestor recomendado en este repo)
-
-## Estructura del proyecto
-
-```text
-src/
-  components/        # componentes y barrels por categoria
-  lib/index.ts       # entrada publica de la libreria npm
-  pages/             # playground local (Home/NotFound)
-  styles/main.css    # estilos base + variables globales
-  __tests__/         # pruebas unitarias/integracion de componentes
-```
-
-## Scripts de desarrollo
-
-- `bun install`: instala dependencias
-- `bun run dev`: entorno local con HMR (playground)
-- `bun run lint`: validacion de estilo y calidad
-- `bun run test`: ejecuta tests con Vitest
-- `bun run build:app`: build del playground/app
-- `bun run build:lib`: build de libreria npm + declaraciones TypeScript
-- `bun run build`: alias recomendado para build de libreria
-
-## Uso como libreria (consumidor)
-
-Instalacion:
+## Install
 
 ```bash
-npm install vertex-ui-components
+npm install all-might-ui
 ```
 
-Uso basico:
+## Usage
 
 ```tsx
-import { Button, Card, ThemeProvider } from "vertex-ui-components";
-import "vertex-ui-components/styles.css";
+import { Button, Card, ThemeProvider } from "all-might-ui";
+import "all-might-ui/styles.css";
 
-export function Example() {
+export function App() {
   return (
     <ThemeProvider>
       <Card title="Demo">
-        <Button variant="primary">Guardar</Button>
+        <Button variant="primary">Save</Button>
       </Card>
     </ThemeProvider>
   );
 }
 ```
 
-## API publica del paquete
+## Theme usage
 
-El paquete expone:
-- `.`: componentes y tipos (`import { Button } from "vertex-ui-components"`)
-- `./styles.css`: estilos compilados globales de la libreria
+```tsx
+import { ThemeProvider, ThemeSwitcher } from "all-might-ui";
 
-Salida de build:
-- `dist/index.js` (ESM)
-- `dist/index.cjs` (CommonJS)
-- `dist/styles.css`
-- `dist/types/**` (declaraciones `.d.ts`)
+export function ThemedDemo() {
+  return (
+    <ThemeProvider>
+      <ThemeSwitcher />
+    </ThemeProvider>
+  );
+}
+```
 
-## Desarrollo de componentes
+`ThemeSwitcher` provides light/dark mode and editable palette fields (`primary`, `secondary`, `accent`, `surface`, `text`, `muted`) with local persistence.
 
-Reglas del repo:
-- Mantener componentes como function components con TypeScript estricto.
-- Exportar componente y tipos desde el `index.ts` de su categoria.
-- Mantener CSS co-localizado (`Component.css`) y prefijo `vx-`.
-- Evitar dependencias del playground (`src/pages`) en codigo de libreria.
+## Public contract
 
-Checklist al agregar un componente:
-1. Crear carpeta del componente y su CSS.
-2. Exportar en el `index.ts` de categoria.
-3. Verificar que quede exportado desde `src/lib/index.ts`.
-4. Agregar/actualizar test.
-5. Ejecutar `bun run lint`, `bun run test`, `bun run build:lib`.
+- Main entry: `all-might-ui`
+- Styles entry: `all-might-ui/styles.css`
+- ESM: `dist/index.js`
+- CJS: `dist/index.cjs`
+- Types: `dist/types/lib/index.d.ts`
 
-## Publicacion en npm
+## Bundler compatibility
 
-1. Actualizar version en `package.json` con semver.
-2. Ejecutar validaciones:
-   - `bun run lint`
-   - `bun run test`
-   - `bun run build:lib`
-3. Verificar artefactos:
-   - `npm pack --dry-run`
-4. Publicar:
-   - `npm publish --access public`
+Works with common React bundlers (Vite, Webpack, Next.js, etc.) as long as styles are imported once.
 
-`prepublishOnly` ya ejecuta lint + tests + build de libreria.
+## Maintainer pre-publish checklist
 
-## Skills del proyecto
+1. Ensure clean workspace for release branch.
+2. Run validations:
+   - `bun run lint` (or `pnpm exec eslint .`)
+   - `bun run test` (or `pnpm exec vitest run`)
+   - `bun run build:lib` (or `pnpm exec tsc -b && pnpm exec vite build --mode library && pnpm exec tsc -p tsconfig.lib.json`)
+3. Inspect build artifacts in `dist/`.
+4. Run `npm pack --dry-run`.
+5. (Optional) Install tarball in a throwaway React app and smoke test imports.
+6. Publish later with explicit version + auth approval (`npm publish --access public`).
 
-Se incluyen skills locales para acelerar trabajo repetitivo:
-- `skills/vertex-ui-maintainer/SKILL.md`: mantenimiento y evolucion de componentes.
-- `skills/vertex-ui-npm-release/SKILL.md`: empaquetado y release a npm.
+## Development
 
-## Estado actual de testing
-
-Hay suite de pruebas existente en `src/__tests__` cubriendo categorias principales.
-Si agregas componentes nuevos, incluye pruebas de comportamiento (evitar snapshots como unica cobertura).
+- Playground app routes live in `src/pages/*`.
+- NPM entrypoint is `src/lib/index.ts` only.
+- Keep React and ReactDOM as peer dependencies.

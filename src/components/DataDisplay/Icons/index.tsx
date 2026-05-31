@@ -1,12 +1,36 @@
-import type { HTMLAttributes, SVGProps } from "react";
-import { DynamicIcon } from "lucide-react/dynamic";
+import type { ComponentType, HTMLAttributes, SVGProps } from "react";
 import {
-  iconNames,
-  legacyToLucide,
-  type IconName,
-  type LucideIconName,
-  type LegacyIconName,
-} from "./catalog";
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  Bell,
+  Bolt,
+  Box,
+  Calendar,
+  Cat,
+  Check,
+  Cloud,
+  Clock3,
+  Dog,
+  Globe,
+  Heart,
+  Layers,
+  Mail,
+  MessageCircle,
+  Moon,
+  PawPrint,
+  Plane,
+  ShieldCheck,
+  Sparkles,
+  Sun,
+  Target,
+  TreePine,
+  Waves,
+  X,
+  type LucideProps,
+} from "lucide-react";
+import { iconNames, type IconName } from "./catalog";
 import "./Icons.css";
 
 type IconSize = "sm" | "md" | "lg";
@@ -21,6 +45,39 @@ export type IconsProps = HTMLAttributes<SVGSVGElement> & {
 const sizeMap: Record<IconSize, number> = { sm: 20, md: 32, lg: 44 };
 const iconNameSet = new Set(iconNames as readonly string[]);
 
+const iconMap: Record<string, ComponentType<LucideProps>> = {
+  spark: Sparkles,
+  stack: Layers,
+  bolt: Bolt,
+  chat: MessageCircle,
+  target: Target,
+  "shield-check": ShieldCheck,
+  wave: Waves,
+  cube: Box,
+  "arrow-left": ArrowLeft,
+  "arrow-right": ArrowRight,
+  "arrow-up": ArrowUp,
+  "arrow-down": ArrowDown,
+  calendar: Calendar,
+  clock: Clock3,
+  bell: Bell,
+  mail: Mail,
+  heart: Heart,
+  check: Check,
+  x: X,
+  cloud: Cloud,
+  sun: Sun,
+  moon: Moon,
+  plane: Plane,
+  dog: Dog,
+  cat: Cat,
+  paw: PawPrint,
+  tree: TreePine,
+  github: Globe,
+  twitter: Globe,
+  linkedin: Globe,
+};
+
 export default function Icons({
   name = "spark",
   size = "md",
@@ -33,9 +90,7 @@ export default function Icons({
   const resolvedSize =
     typeof size === "number" ? size : sizeMap[size] ?? sizeMap.md;
 
-  const maybeLegacy = name as LegacyIconName;
-  const resolvedName = (legacyToLucide[maybeLegacy] ?? name) as LucideIconName;
-  const exists = iconNameSet.has(resolvedName);
+  const exists = iconNameSet.has(name);
 
   if (!exists) {
     return (
@@ -54,27 +109,16 @@ export default function Icons({
     );
   }
 
+  const IconComponent = iconMap[name];
+
   return (
-      <DynamicIcon
-        className={classes}
-        name={resolvedName as never}
-        size={resolvedSize}
-        color={color}
-        strokeWidth={strokeWidth}
-        absoluteStrokeWidth
-        aria-label={name}
-      fallback={() => (
-        <svg
-          className={classes}
-          width={resolvedSize}
-          height={resolvedSize}
-          viewBox="0 0 24 24"
-          aria-label={name}
-          {...(props as Omit<SVGProps<SVGSVGElement>, "name">)}
-        >
-          <circle cx="12" cy="12" r="1.5" fill={color} />
-        </svg>
-      )}
+    <IconComponent
+      className={classes}
+      size={resolvedSize}
+      color={color}
+      strokeWidth={strokeWidth}
+      absoluteStrokeWidth
+      aria-label={name}
       {...(props as Omit<SVGProps<SVGSVGElement>, "name">)}
     />
   );

@@ -22,14 +22,17 @@ export default defineConfig(({ mode }) => {
           copyPublicDir: false,
           lib: {
             entry: resolve(__dirname, "src/lib/index.ts"),
-            name: "VertexUIComponents",
+            name: "AllMightUI",
             formats: ["es", "cjs"],
             fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
             cssFileName: "styles",
           },
           cssCodeSplit: false,
           rollupOptions: {
-            external: ["react", "react-dom", "react/jsx-runtime"],
+            external: (id) =>
+              ["react", "react-dom", "react/jsx-runtime"].includes(id) ||
+              id === "lucide-react" ||
+              id.startsWith("lucide-react/"),
           },
         }
       : undefined,

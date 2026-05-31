@@ -64,10 +64,32 @@ const defaultThemes: ThemePalette[] = [
   },
 ];
 
+const STORAGE_KEY = "vx-theme-state";
+const paletteFields = [
+  "primary",
+  "secondary",
+  "accent",
+  "surface",
+  "text",
+  "muted",
+] as const;
+
+const paletteToCssVar: Record<(typeof paletteFields)[number], string> = {
+  primary: "--vx-primary",
+  secondary: "--vx-secondary",
+  accent: "--vx-accent",
+  surface: "--vx-surface",
+  text: "--vx-text",
+  muted: "--vx-muted",
+};
+
+type EditablePalette = Pick<ThemePalette, (typeof paletteFields)[number]>;
+type ThemeOverrides = Partial<Omit<ThemePalette, "name">>;
+
 type ThemeContextValue = {
   theme: ThemePalette;
   setThemeByName: (name: string) => void;
-  setThemeOverrides: (overrides: Partial<Omit<ThemePalette, "name">>) => void;
+  setThemeOverrides: (overrides: ThemeOverrides) => void;
   themes: ThemePalette[];
 };
 
@@ -78,6 +100,78 @@ export type ThemeProviderProps = {
   themes?: ThemePalette[];
   defaultName?: string;
 };
+
+function pickEditablePalette(theme: ThemePalette): EditablePalette {
+  return {
+    primary: theme.primary,
+    secondary: theme.secondary,
+    accent: theme.accent,
+    surface: theme.surface,
+    text: theme.text,
+    muted: theme.muted,
+  };
+}
+
+function applyThemeToDocument(theme: ThemePalette) {
+  const root = document.documentElement;
+  const isDark = theme.mode === "dark";
+  const border = isDark ? "#1f2937" : "#e2e8f0";
+  const surfaceMuted = isDark ? "#0f172a" : "#f6f8fb";
+  const surfaceElevated = isDark ? "#111827" : "#ffffff";
+  const codeBg = isDark ? "#0b1224" : "#0f172a";
+  const shadow = isDark
+    ? "0 10px 30px rgba(0, 0, 0, 0.45)"
+    : "0 8px 20px rgba(15, 23, 42, 0.05)";
+
+  root.style.setProperty("--vx-primary", theme.primary);
+  root.style.setProperty("--vx-secondary", theme.secondary);
+  root.style.setProperty("--vx-accent", theme.accent);
+  root.style.setProperty("--vx-surface", theme.surface);
+  root.style.setProperty("--vx-text", theme.text);
+  root.style.setProperty("--vx-muted", theme.muted);
+  root.style.setProperty("--vx-border", border);
+  root.style.setProperty("--vx-surface-muted", surfaceMuted);
+  root.style.setProperty("--vx-surface-elevated", surfaceElevated);
+  root.style.setProperty("--vx-code-bg", codeBg);
+  root.style.setProperty("--vx-code-text", "#e2e8f0");
+  root.style.setProperty("--vx-shadow", shadow);
+  root.dataset.themeMode = theme.mode ?? "light";
+  document.body.dataset.themeMode = theme.mode ?? "light";
+  root.style.setProperty("color-scheme", theme.mode === "dark" ? "dark" : "light");
+}
+
+function readStoredOverrides(): ThemeOverrides {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object") return {};
+
+    const mode =
+      "mode" in parsed && (parsed.mode === "light" || parsed.mode === "dark")
+        ? parsed.mode
+        : undefined;
+
+    const palette =
+      "palette" in parsed && parsed.palette && typeof parsed.palette === "object"
+        ? parsed.palette
+        : {};
+
+    const safePalette: Partial<EditablePalette> = {};
+    paletteFields.forEach((field) => {
+      const value = (palette as Record<string, unknown>)[field];
+      if (typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value)) {
+        safePalette[field] = value;
+      }
+    });
+
+    return { ...safePalette, ...(mode ? { mode } : {}) };
+  } catch {
+    return {};
+  }
+}
 
 export function ThemeProvider({
   children,
@@ -95,13 +189,13 @@ export function ThemeProvider({
     return preferred ?? themes[0]?.name;
   }, [defaultName, prefersDark, themes]);
   const [activeName, setActiveName] = useState(initial ?? themes[0]?.name);
-  const [overrides, setOverrides] = useState<
-    Partial<Omit<ThemePalette, "name">>
-  >({});
+  const [overrides, setOverrides] = useState<ThemeOverrides>(() =>
+    readStoredOverrides(),
+  );
 
   const baseTheme = useMemo(
     () => themes.find((t) => t.name === activeName) ?? themes[0],
-    [activeName, themes]
+    [activeName, themes],
   );
   const activeTheme = useMemo(
     () => ({
@@ -109,39 +203,30 @@ export function ThemeProvider({
       ...overrides,
       name: baseTheme?.name ?? "custom",
     }),
-    [baseTheme, overrides]
+    [baseTheme, overrides],
   );
 
   useEffect(() => {
     if (!activeTheme) return;
-    const root = document.documentElement;
-    const isDark = activeTheme.mode === "dark";
-    const border = isDark ? "#1f2937" : "#e2e8f0";
-    const surfaceMuted = isDark ? "#0f172a" : "#f6f8fb";
-    const surfaceElevated = isDark ? "#111827" : "#ffffff";
-    const codeBg = isDark ? "#0b1224" : "#0f172a";
-    const shadow = isDark
-      ? "0 10px 30px rgba(0, 0, 0, 0.45)"
-      : "0 8px 20px rgba(15, 23, 42, 0.05)";
-    root.style.setProperty("--vx-primary", activeTheme.primary);
-    root.style.setProperty("--vx-secondary", activeTheme.secondary);
-    root.style.setProperty("--vx-accent", activeTheme.accent);
-    root.style.setProperty("--vx-surface", activeTheme.surface);
-    root.style.setProperty("--vx-text", activeTheme.text);
-    root.style.setProperty("--vx-muted", activeTheme.muted);
-    root.style.setProperty("--vx-border", border);
-    root.style.setProperty("--vx-surface-muted", surfaceMuted);
-    root.style.setProperty("--vx-surface-elevated", surfaceElevated);
-    root.style.setProperty("--vx-code-bg", codeBg);
-    root.style.setProperty("--vx-code-text", "#e2e8f0");
-    root.style.setProperty("--vx-shadow", shadow);
-    root.dataset.themeMode = activeTheme.mode ?? "light";
-    document.body.dataset.themeMode = activeTheme.mode ?? "light";
-    if (activeTheme.mode === "dark") {
-      root.style.setProperty("color-scheme", "dark");
-    } else {
-      root.style.setProperty("color-scheme", "light");
-    }
+    applyThemeToDocument(activeTheme);
+
+    const timeoutId = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            mode: activeTheme.mode ?? "light",
+            palette: pickEditablePalette(activeTheme),
+          }),
+        );
+      } catch {
+        // noop: keep runtime stable when storage is unavailable
+      }
+    }, 100);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [activeTheme]);
 
   const value: ThemeContextValue = useMemo(
@@ -151,7 +236,7 @@ export function ThemeProvider({
       setThemeOverrides: setOverrides,
       themes,
     }),
-    [activeTheme, themes]
+    [activeTheme, themes],
   );
 
   return (
@@ -173,31 +258,29 @@ export type ThemeSwitcherProps = {
 };
 
 export function ThemeSwitcher({ label = "Tema" }: ThemeSwitcherProps) {
-  const { themes, theme, setThemeByName, setThemeOverrides } = useTheme();
-
-  const handleThemeChange = (name: string) => {
-    setThemeOverrides({});
-    setThemeByName(name);
-  };
+  const { theme, setThemeOverrides } = useTheme();
 
   const handleModeChange = (mode: "light" | "dark") => {
-    const matchingTheme = themes.find((t) => t.mode === mode);
-    if (matchingTheme) {
-      handleThemeChange(matchingTheme.name);
-      return;
-    }
-    setThemeOverrides({ ...theme, mode });
+    setThemeOverrides({ ...pickEditablePalette(theme), mode });
   };
 
-  const handleOverride =
-    (field: keyof Omit<ThemePalette, "name">) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const value = e.target.value;
-      if (field === "mode" && (value === "light" || value === "dark")) {
-        handleModeChange(value);
-        return;
-      }
-      setThemeOverrides({ ...theme, [field]: value });
+  const handlePalettePreview =
+    (field: keyof EditablePalette) =>
+    (e: React.FormEvent<HTMLInputElement>) => {
+      document.documentElement.style.setProperty(
+        paletteToCssVar[field],
+        e.currentTarget.value,
+      );
+    };
+
+  const handlePaletteChange =
+    (field: keyof EditablePalette) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setThemeOverrides({
+        ...pickEditablePalette(theme),
+        mode: theme.mode ?? "light",
+        [field]: e.target.value,
+      });
     };
 
   return (
@@ -205,46 +288,26 @@ export function ThemeSwitcher({ label = "Tema" }: ThemeSwitcherProps) {
       <label>
         <span className="w-15">{label}</span>
         <Select
-          value={theme.name}
-          onChange={(e) => handleThemeChange(e.target.value)}
+          value={theme.mode ?? "light"}
+          onChange={(e) => handleModeChange(e.target.value as "light" | "dark")}
+          aria-label={label}
         >
-          {themes.map((t) => (
-            <option key={t.name} value={t.name}>
-              {t.name}
-            </option>
-          ))}
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
         </Select>
       </label>
-      <div className="vx-theme">
-        <label>
-          <span className="w-15">Modo</span>
-          <Select
-            value={theme.mode ?? "light"}
-            onChange={handleOverride("mode")}
-          >
-            <option value="light">Claro</option>
-            <option value="dark">Oscuro</option>
-          </Select>
-        </label>
-      </div>
+
       <div className="vx-theme__palette">
         <Flex direction="row" gap={1}>
-          {(
-            [
-              "primary",
-              "secondary",
-              "accent",
-              "surface",
-              "text",
-              "muted",
-            ] as const
-          ).map((key) => (
+          {paletteFields.map((key) => (
             <label key={key}>
               <span>{key}</span>
               <input
                 type="color"
                 value={theme[key]}
-                onChange={handleOverride(key)}
+                onInput={handlePalettePreview(key)}
+                onChange={handlePaletteChange(key)}
+                aria-label={key}
               />
             </label>
           ))}

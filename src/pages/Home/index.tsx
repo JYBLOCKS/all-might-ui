@@ -1097,7 +1097,7 @@ export default function Home() {
         <Flex align="center" justify="between">
           <div>
             <p className="eyebrow">Guia de componentes reutilizables</p>
-            <h1>Vertex UI</h1>
+            <h1>All Might UI</h1>
             <p>
               Usa el menu lateral para ver un componente a la vez. Copia el
               snippet y adapta las props a tu app.

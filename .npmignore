@@ -1,0 +1,13 @@
+# npm publish ignore rules
+node_modules
+src
+public
+.openspec
+openspec
+.pi
+.atl
+skills
+
+# Keep build artifacts
+!dist
+!dist/**
