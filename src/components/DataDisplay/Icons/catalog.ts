@@ -17,6 +17,7 @@ export const iconNames = [
   "mail",
   "heart",
   "check",
+  "copy",
   "x",
   "cloud",
   "sun",

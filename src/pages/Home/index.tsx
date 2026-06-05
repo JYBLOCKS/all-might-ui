@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -159,11 +160,63 @@ export default function Home() {
   const [activeView, setActiveView] = useState<"preview" | "api">("preview");
   const [iconFilter, setIconFilter] = useState("");
   const [iconCopied, setIconCopied] = useState<string | null>(null);
+  const [copiedDemoId, setCopiedDemoId] = useState<string | null>(null);
+  const [isFloatButtonDemoVisible, setIsFloatButtonDemoVisible] =
+    useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const contentRef = useRef<HTMLElement | null>(null);
+
+  const copyText = async (text: string) => {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.setAttribute("readonly", "");
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+  };
+
+  const handleCopyDemo = async (demo: Demo) => {
+    try {
+      await copyText(demo.code);
+      setCopiedDemoId(demo.id);
+      window.setTimeout(() => setCopiedDemoId(null), 1600);
+    } catch {
+      setCopiedDemoId("error");
+      window.setTimeout(() => setCopiedDemoId(null), 1600);
+    }
+  };
 
   const handleSlider = (event: ChangeEvent<HTMLInputElement>) => {
     setSliderValue(Number(event.target.value));
   };
+
+  useEffect(() => {
+    const target = document.getElementById("demo-float-button");
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFloatButtonDemoVisible(entry?.isIntersecting ?? false);
+      },
+      {
+        threshold: 0.35,
+      },
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [activeView]);
 
   const demos: Demo[] = useMemo(
     () => [
@@ -942,7 +995,7 @@ export default function Home() {
         description: "Boton flotante.",
         preview: (
           <div className="demo-card__preview">
-            <FloatButton />
+            {isFloatButtonDemoVisible ? <FloatButton /> : null}
           </div>
         ),
         code: `<FloatButton />`,
@@ -1048,11 +1101,13 @@ export default function Home() {
       snackbarPlacement,
       iconFilter,
       iconCopied,
+      isFloatButtonDemoVisible,
     ]
   );
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
+    setIsMobileSidebarOpen(false);
     const el = document.getElementById(`demo-${id}`);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1060,6 +1115,39 @@ export default function Home() {
   };
 
   const categories = Array.from(new Set(demos.map((d) => d.category)));
+
+  const renderSidebarNavigation = () => (
+    <>
+      <h3>Componentes</h3>
+      <ul>
+        {categories.map((cat) => (
+          <li key={cat} className="sidebar__category">
+            <span className="sidebar__category-title">{cat}</span>
+            <ul>
+              {demos
+                .filter((demo) => demo.category === cat)
+                .map((demo) => (
+                  <li key={demo.id}>
+                    <button
+                      type="button"
+                      className={
+                        demo.id === selectedId
+                          ? "sidebar__link is-active"
+                          : "sidebar__link"
+                      }
+                      onClick={() => handleSelect(demo.id)}
+                      aria-current={demo.id === selectedId ? "page" : undefined}
+                    >
+                      {demo.title}
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
 
   const renderApiDoc = (demo: Demo) => {
     const props = demo.apiProps ?? apiPropsLookup[demo.id] ?? [];
@@ -1083,9 +1171,30 @@ export default function Home() {
         </div>
         <div className="demo-card__doc-section">
           <h4>Ejemplo</h4>
-          <pre className="demo-card__code">
-            <code>{demo.code}</code>
-          </pre>
+          <div className="demo-card__code-wrap">
+            <pre className="demo-card__code">
+              <code>{demo.code}</code>
+            </pre>
+            <button
+              type="button"
+              className="demo-card__copy"
+              onClick={() => handleCopyDemo(demo)}
+              aria-label={`Copiar ejemplo de ${demo.title}`}
+              title={
+                copiedDemoId === demo.id
+                  ? "Copiado"
+                  : copiedDemoId === "error"
+                    ? "Error al copiar"
+                    : "Copiar"
+              }
+            >
+              <Icons
+                name={copiedDemoId === demo.id ? "check" : "copy"}
+                size="sm"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1103,60 +1212,64 @@ export default function Home() {
               snippet y adapta las props a tu app.
             </p>
           </div>
-          <div className="home__view-toggle">
-            <Button
+          <div className="home__header-actions">
+            <button
               type="button"
-              variant="ghost"
-              className={activeView === "preview" ? "is-active" : ""}
-              onClick={() => setActiveView("preview")}
+              className="home__sidebar-toggle"
+              aria-label="Abrir componentes"
+              aria-expanded={isMobileSidebarOpen}
+              aria-controls="home-mobile-sidebar"
+              onClick={() => setIsMobileSidebarOpen(true)}
             >
-              Preview
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className={activeView === "api" ? "is-active" : ""}
-              onClick={() => setActiveView("api")}
-            >
-              API doc
-            </Button>
+              <Icons name="stack" size="sm" aria-hidden="true" />
+            </button>
+            <div className="home__view-toggle">
+              <Button
+                type="button"
+                variant="ghost"
+                className={activeView === "preview" ? "is-active" : ""}
+                onClick={() => setActiveView("preview")}
+              >
+                Preview
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className={activeView === "api" ? "is-active" : ""}
+                onClick={() => setActiveView("api")}
+              >
+                API doc
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="home__layout">
         <article className="home__sidebar" aria-label="Componentes">
-          <h3>Componentes</h3>
-          <ul>
-            {categories.map((cat) => (
-              <li key={cat} className="sidebar__category">
-                <span className="sidebar__category-title">{cat}</span>
-                <ul>
-                  {demos
-                    .filter((demo) => demo.category === cat)
-                    .map((demo) => (
-                      <li key={demo.id}>
-                        <button
-                          type="button"
-                          className={
-                            demo.id === selectedId
-                              ? "sidebar__link is-active"
-                              : "sidebar__link"
-                          }
-                          onClick={() => handleSelect(demo.id)}
-                          aria-current={
-                            demo.id === selectedId ? "page" : undefined
-                          }
-                        >
-                          {demo.title}
-                        </button>
-                      </li>
-                    ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
+          {renderSidebarNavigation()}
         </article>
+
+        <Drawer
+          open={isMobileSidebarOpen}
+          placement="left"
+          header={
+            <div className="home__mobile-sidebar-header">
+              <span>Componentes</span>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsMobileSidebarOpen(false)}
+              >
+                Cerrar
+              </Button>
+            </div>
+          }
+        >
+          <div id="home-mobile-sidebar" className="home__mobile-sidebar">
+            {renderSidebarNavigation()}
+          </div>
+        </Drawer>
 
         <section className="home__content" ref={contentRef}>
           {demos.map((demo) => (
@@ -1171,9 +1284,30 @@ export default function Home() {
               {activeView === "preview" ? (
                 <>
                   <div className="demo-card__preview">{demo.preview}</div>
-                  <pre className="demo-card__code">
-                    <code>{demo.code}</code>
-                  </pre>
+                  <div className="demo-card__code-wrap">
+                    <pre className="demo-card__code">
+                      <code>{demo.code}</code>
+                    </pre>
+                    <button
+                      type="button"
+                      className="demo-card__copy"
+                      onClick={() => handleCopyDemo(demo)}
+                      aria-label={`Copiar ejemplo de ${demo.title}`}
+                      title={
+                        copiedDemoId === demo.id
+                          ? "Copiado"
+                          : copiedDemoId === "error"
+                            ? "Error al copiar"
+                            : "Copiar"
+                      }
+                    >
+                      <Icons
+                        name={copiedDemoId === demo.id ? "check" : "copy"}
+                        size="sm"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </div>
                 </>
               ) : (
                 renderApiDoc(demo)

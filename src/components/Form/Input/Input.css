@@ -4,7 +4,7 @@
   border: 1px solid var(--vx-border, #d1d5db);
   border-radius: 0.5rem;
   background-color: var(--vx-surface-elevated, #ffffff);
-  color: var(--vx-text, #111827);
+  color: var(--vx-input-text, var(--vx-text, #111827));
 }
 
 .vx-input:focus {

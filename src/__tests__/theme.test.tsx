@@ -25,7 +25,7 @@ describe("Theme components", () => {
     document.body.removeAttribute("data-theme-mode");
   });
 
-  it("renders mode select and palette color pickers", () => {
+  it("renders mode select and palette color pickers", async () => {
     render(
       <ThemeProvider>
         <ThemeSwitcher />
@@ -40,6 +40,13 @@ describe("Theme components", () => {
     expect(screen.getByLabelText("text")).toBeInTheDocument();
     expect(screen.getByLabelText("muted")).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: /azure/i })).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(document.documentElement.style.getPropertyValue("--vx-text")).toBe("#111827");
+      expect(document.documentElement.style.getPropertyValue("--vx-muted")).toBe("#475569");
+      expect(document.documentElement.style.getPropertyValue("--vx-border")).toBe("#cbd5e1");
+      expect(document.documentElement.style.getPropertyValue("--vx-code-bg")).toBe("#f1f5f9");
+    });
   });
 
   it("changing mode updates data-theme-mode and color-scheme", async () => {
@@ -55,6 +62,19 @@ describe("Theme components", () => {
       expect(document.documentElement.dataset.themeMode).toBe("dark");
       expect(document.body.dataset.themeMode).toBe("dark");
       expect(document.documentElement.style.getPropertyValue("color-scheme")).toBe("dark");
+      expect(document.documentElement.style.getPropertyValue("--vx-code-bg")).toBe("#0b1224");
+      expect(document.documentElement.style.getPropertyValue("--vx-code-text")).toBe("#e2e8f0");
+      expect(document.documentElement.style.getPropertyValue("--vx-input-text")).toBe("#e2e8f0");
+    });
+
+    fireEvent.change(screen.getByLabelText(/Tema/i), { target: { value: "light" } });
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.themeMode).toBe("light");
+      expect(document.documentElement.style.getPropertyValue("--vx-border")).toBe("#cbd5e1");
+      expect(document.documentElement.style.getPropertyValue("--vx-code-bg")).toBe("#f1f5f9");
+      expect(document.documentElement.style.getPropertyValue("--vx-code-text")).toBe("#111827");
+      expect(document.documentElement.style.getPropertyValue("--vx-input-text")).toBe("#111827");
     });
   });
 
@@ -99,6 +119,39 @@ describe("Theme components", () => {
     await waitFor(() => {
       expect(document.documentElement.dataset.themeMode).toBe("dark");
       expect(document.documentElement.style.getPropertyValue("--vx-primary")).toBe("#123456");
+      expect(document.documentElement.style.getPropertyValue("--vx-surface")).toBe("#121212");
+    });
+  });
+
+  it("resets chart palette surfaces when switching from dark to light", async () => {
+    window.localStorage.setItem(
+      "vx-theme-state",
+      JSON.stringify({
+        mode: "dark",
+        palette: {
+          primary: "#123456",
+          secondary: "#abcdef",
+          accent: "#010203",
+          surface: "#121212",
+          text: "#f5f5f5",
+          muted: "#888888",
+        },
+      }),
+    );
+
+    render(
+      <ThemeProvider>
+        <ThemeSwitcher />
+      </ThemeProvider>,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Tema/i), { target: { value: "light" } });
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.themeMode).toBe("light");
+      expect(document.documentElement.style.getPropertyValue("--vx-surface")).toBe("#ffffff");
+      expect(document.documentElement.style.getPropertyValue("--vx-text")).toBe("#111827");
+      expect(document.documentElement.style.getPropertyValue("--vx-muted")).toBe("#475569");
     });
   });
 
