@@ -93,11 +93,142 @@ const tableData: TableData[] = [
 const allIconNames: IconName[] = [...iconNames];
 const ICON_PREVIEW_SIZE = 24;
 const ICON_LABEL_MAX_LENGTH = 13;
+const ICON_CATEGORY_ORDER = [
+  "Business",
+  "General",
+  "Navigation",
+  "Status",
+  "Communication",
+  "Data",
+  "Devices",
+  "Nature & Lifestyle",
+] as const;
 
 const formatIconLabel = (name: string) =>
   name.length > ICON_LABEL_MAX_LENGTH
     ? `${name.slice(0, ICON_LABEL_MAX_LENGTH)}...`
     : name;
+
+const getIconCategory = (name: string) => {
+  if (
+    [
+      "add",
+      "create",
+      "new",
+      "delete",
+      "remove",
+      "edit",
+      "update",
+      "list",
+      "view",
+      "details",
+      "search",
+      "filter",
+      "download",
+      "upload",
+      "save",
+      "printer",
+      "file-text",
+      "folder",
+      "users",
+      "user-add",
+      "user-plus",
+      "inventory",
+      "package",
+      "billing",
+      "receipt",
+      "payments",
+      "credit-card",
+      "orders",
+      "shopping-cart",
+      "reports",
+      "chart-column-big",
+      "dashboard",
+      "layout-dashboard",
+      "briefcase",
+      "building",
+      "clipboard-list",
+      "plus",
+      "circle-plus",
+      "trash",
+      "square-pen",
+      "eye",
+    ].includes(name)
+  ) {
+    return "Business";
+  }
+
+  if (
+    name.startsWith("arrow") ||
+    name.startsWith("a-arrow") ||
+    name.startsWith("align") ||
+    name.startsWith("between") ||
+    name === "arrows-up-from-line"
+  ) {
+    return "Navigation";
+  }
+
+  if (
+    name.startsWith("alert") ||
+    name.startsWith("alarm") ||
+    name.startsWith("badge") ||
+    name.startsWith("shield")
+  ) {
+    return "Status";
+  }
+
+  if (
+    ["mail", "message-circle", "bell", "github", "twitter", "linkedin"]
+      .includes(name) ||
+    name.startsWith("app-window")
+  ) {
+    return "Communication";
+  }
+
+  if (
+    name.startsWith("activity") ||
+    name.startsWith("bar-chart") ||
+    name === "area-chart" ||
+    name.startsWith("axis3")
+  ) {
+    return "Data";
+  }
+
+  if (
+    name.startsWith("audio") ||
+    name.startsWith("battery") ||
+    name.startsWith("bluetooth") ||
+    ["accessibility", "airplay", "air-vent"].includes(name)
+  ) {
+    return "Devices";
+  }
+
+  if (
+    [
+      "apple",
+      "banana",
+      "bean",
+      "bean-off",
+      "beef",
+      "beef-off",
+      "beer",
+      "beer-off",
+      "bed",
+      "bed-double",
+      "bed-single",
+      "bird",
+      "birdhouse",
+      "cat",
+      "dog",
+      "paw-print",
+      "tree-pine",
+    ].includes(name)
+  ) {
+    return "Nature & Lifestyle";
+  }
+
+  return "General";
+};
 
 const apiPropsLookup: Record<string, string[]> = {
   button: ["variant", "size", "block", "disabled", "icon", "type", "onClick"],
@@ -172,6 +303,22 @@ export default function Home() {
     useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const contentRef = useRef<HTMLElement | null>(null);
+  const filteredIconGroups = useMemo(() => {
+    const groups = ICON_CATEGORY_ORDER.map((title) => ({ title, icons: [] as string[] }));
+
+    allIconNames
+      .filter((name) => name.toLowerCase().includes(iconFilter.toLowerCase()))
+      .forEach((name) => {
+        const category = getIconCategory(name);
+        const group = groups.find(({ title }) => title === category);
+
+        if (group) {
+          group.icons.push(name);
+        }
+      });
+
+    return groups.filter(({ icons }) => icons.length > 0);
+  }, [iconFilter]);
 
   const copyText = async (text: string) => {
     if (navigator.clipboard?.writeText) {
@@ -577,7 +724,7 @@ export default function Home() {
           <div className="demo-card__preview demo-card__preview--icons">
             <div className="icons-toolbar">
               <Input
-                placeholder="Filtra por nombre (ej. arrow, github, dog)"
+                placeholder="Filtra por nombre (ej. add, edit, dashboard)"
                 value={iconFilter}
                 onChange={(e) => setIconFilter(e.target.value)}
                 style={{ width: "100%", maxWidth: "320px" }}
@@ -588,41 +735,47 @@ export default function Home() {
                 </span>
               ) : null}
             </div>
-            <div className="icons-grid">
-              {allIconNames
-                .filter((name) =>
-                  name.toLowerCase().includes(iconFilter.toLowerCase())
-                )
-                .map((name) => {
-                  const label = formatIconLabel(name);
+            <div className="icons-groups">
+              {filteredIconGroups.map(({ title, icons }) => (
+                <section key={title} className="icons-group">
+                  <div className="icons-group__header">
+                    <h3>{title}</h3>
+                    <span>{icons.length} iconos</span>
+                  </div>
+                  <div className="icons-grid">
+                    {icons.map((name) => {
+                      const label = formatIconLabel(name);
 
-                  return (
-                    <button
-                      key={name}
-                      type="button"
-                      className="icon-card"
-                      aria-label={`Copiar icono ${name}`}
-                      onClick={async () => {
-                        const snippet = `<Icons name="${name}" size={${ICON_PREVIEW_SIZE}} />`;
-                        try {
-                          await copyText(snippet);
-                          setIconCopied(name);
-                          window.setTimeout(() => setIconCopied(null), 1600);
-                        } catch {
-                          setIconCopied("Error al copiar");
-                          window.setTimeout(() => setIconCopied(null), 1600);
-                        }
-                      }}
-                    >
-                      <Icons name={name as IconName} size={ICON_PREVIEW_SIZE} />
-                      <Tooltip content={name}>
-                        <span className="icon-card__label" title={name}>
-                          {label}
-                        </span>
-                      </Tooltip>
-                    </button>
-                  );
-                })}
+                      return (
+                        <button
+                          key={name}
+                          type="button"
+                          className="icon-card"
+                          aria-label={`Copiar icono ${name}`}
+                          onClick={async () => {
+                            const snippet = `<Icons name="${name}" size={${ICON_PREVIEW_SIZE}} />`;
+                            try {
+                              await copyText(snippet);
+                              setIconCopied(name);
+                              window.setTimeout(() => setIconCopied(null), 1600);
+                            } catch {
+                              setIconCopied("Error al copiar");
+                              window.setTimeout(() => setIconCopied(null), 1600);
+                            }
+                          }}
+                        >
+                          <Icons name={name as IconName} size={ICON_PREVIEW_SIZE} />
+                          <Tooltip content={name}>
+                            <span className="icon-card__label" title={name}>
+                              {label}
+                            </span>
+                          </Tooltip>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
             </div>
           </div>
         ),
@@ -1116,8 +1269,9 @@ export default function Home() {
       stepperActive,
       progressValue,
       snackbarPlacement,
-      iconFilter,
+      filteredIconGroups,
       iconCopied,
+      iconFilter,
       isFloatButtonDemoVisible,
     ]
   );

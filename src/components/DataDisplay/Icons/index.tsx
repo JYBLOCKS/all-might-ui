@@ -15,17 +15,33 @@ export type IconsProps = HTMLAttributes<SVGSVGElement> & {
 
 const sizeMap: Record<IconSize, number> = { sm: 24, md: 32, lg: 44 };
 const iconAliases: Record<string, string> = {
+  add: "plus",
+  billing: "receipt",
   chat: "message-circle",
   clock: "clock3",
   "clock-3": "clock3",
+  create: "circle-plus",
   cube: "box",
+  dashboard: "layout-dashboard",
+  delete: "trash",
+  details: "file-text",
+  edit: "square-pen",
   github: "globe",
+  inventory: "package",
   linkedin: "globe",
+  "new": "circle-plus",
+  orders: "shopping-cart",
   paw: "paw-print",
+  payments: "credit-card",
+  remove: "trash",
+  reports: "chart-column-big",
   spark: "sparkles",
   stack: "layers",
   tree: "tree-pine",
   twitter: "globe",
+  update: "square-pen",
+  "user-add": "user-plus",
+  view: "eye",
   wave: "waves",
 };
 

@@ -76,4 +76,22 @@ describe("DataDisplay components", () => {
     expect(icon).toHaveAttribute("width", "24");
     expect(icon).toHaveAttribute("height", "24");
   });
+
+  it("supports business-friendly icon aliases", () => {
+    render(
+      <>
+        <Icons name="add" />
+        <Icons name="delete" />
+        <Icons name="edit" />
+        <Icons name="list" />
+        <Icons name="view" />
+      </>,
+    );
+
+    expect(screen.getByLabelText("add")).toBeInTheDocument();
+    expect(screen.getByLabelText("delete")).toBeInTheDocument();
+    expect(screen.getByLabelText("edit")).toBeInTheDocument();
+    expect(screen.getByLabelText("list")).toBeInTheDocument();
+    expect(screen.getByLabelText("view")).toBeInTheDocument();
+  });
 });

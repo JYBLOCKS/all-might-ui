@@ -51,6 +51,8 @@ describe("Home page", () => {
       </ThemeProvider>,
     );
 
+    expect(screen.getAllByText("Business").length).toBeGreaterThan(0);
+
     const iconButton = screen.getByLabelText("Copiar icono align-horizontal-space-between");
     const iconName = within(iconButton).getByText("align-horizon...");
 
