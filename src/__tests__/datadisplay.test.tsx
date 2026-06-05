@@ -64,12 +64,16 @@ describe("DataDisplay components", () => {
     expect(screen.getByLabelText("spark")).toBeInTheDocument();
   });
 
-  it("exposes a non-empty icon catalog", () => {
-    expect(iconNames.length).toBeGreaterThanOrEqual(20);
+  it("exposes a large icon catalog", () => {
+    expect(iconNames.length).toBeGreaterThanOrEqual(200);
   });
 
-  it("renders a new non-legacy icon from catalog", () => {
-    render(<Icons name="airplay" />);
-    expect(screen.getByLabelText("airplay")).toBeInTheDocument();
+  it("renders a catalog icon and respects the minimum small size", () => {
+    render(<Icons name="airplay" size="sm" />);
+
+    const icon = screen.getByLabelText("airplay");
+    expect(icon).toBeInTheDocument();
+    expect(icon).toHaveAttribute("width", "24");
+    expect(icon).toHaveAttribute("height", "24");
   });
 });

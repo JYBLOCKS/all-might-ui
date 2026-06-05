@@ -1,37 +1,7 @@
 import type { ComponentType, HTMLAttributes, SVGProps } from "react";
-import {
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  ArrowUp,
-  Bell,
-  Bolt,
-  Box,
-  Calendar,
-  Cat,
-  Check,
-  Copy,
-  Cloud,
-  Clock3,
-  Dog,
-  Globe,
-  Heart,
-  Layers,
-  Mail,
-  MessageCircle,
-  Moon,
-  PawPrint,
-  Plane,
-  ShieldCheck,
-  Sparkles,
-  Sun,
-  Target,
-  TreePine,
-  Waves,
-  X,
-  type LucideProps,
-} from "lucide-react";
-import { iconNames, type IconName } from "./catalog";
+import * as LucideIcons from "lucide-react";
+import { type LucideProps } from "lucide-react";
+import { type IconName } from "./catalog";
 import "./Icons.css";
 
 type IconSize = "sm" | "md" | "lg";
@@ -43,42 +13,40 @@ export type IconsProps = HTMLAttributes<SVGSVGElement> & {
   strokeWidth?: number;
 };
 
-const sizeMap: Record<IconSize, number> = { sm: 20, md: 32, lg: 44 };
-const iconNameSet = new Set(iconNames as readonly string[]);
-
-const iconMap: Record<string, ComponentType<LucideProps>> = {
-  spark: Sparkles,
-  stack: Layers,
-  bolt: Bolt,
-  chat: MessageCircle,
-  target: Target,
-  "shield-check": ShieldCheck,
-  wave: Waves,
-  cube: Box,
-  "arrow-left": ArrowLeft,
-  "arrow-right": ArrowRight,
-  "arrow-up": ArrowUp,
-  "arrow-down": ArrowDown,
-  calendar: Calendar,
-  clock: Clock3,
-  bell: Bell,
-  mail: Mail,
-  heart: Heart,
-  check: Check,
-  copy: Copy,
-  x: X,
-  cloud: Cloud,
-  sun: Sun,
-  moon: Moon,
-  plane: Plane,
-  dog: Dog,
-  cat: Cat,
-  paw: PawPrint,
-  tree: TreePine,
-  github: Globe,
-  twitter: Globe,
-  linkedin: Globe,
+const sizeMap: Record<IconSize, number> = { sm: 24, md: 32, lg: 44 };
+const iconAliases: Record<string, string> = {
+  chat: "message-circle",
+  clock: "clock3",
+  "clock-3": "clock3",
+  cube: "box",
+  github: "globe",
+  linkedin: "globe",
+  paw: "paw-print",
+  spark: "sparkles",
+  stack: "layers",
+  tree: "tree-pine",
+  twitter: "globe",
+  wave: "waves",
 };
+
+const toKebabCase = (value: string) =>
+  value
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+    .toLowerCase();
+
+const iconEntries = Object.entries(LucideIcons).filter(
+  ([key, value]) =>
+    /^[A-Z]/.test(key) &&
+    !key.endsWith("Icon") &&
+    Boolean(value) &&
+    typeof value === "object" &&
+    "$$typeof" in value,
+) as Array<[string, ComponentType<LucideProps>]>;
+
+const iconMap = Object.fromEntries(
+  iconEntries.map(([key, value]) => [toKebabCase(key), value]),
+) as Record<string, ComponentType<LucideProps>>;
 
 export default function Icons({
   name = "spark",
@@ -90,9 +58,9 @@ export default function Icons({
 }: IconsProps) {
   const classes = ["vx-icon", className ?? ""].filter(Boolean).join(" ");
   const resolvedSize =
-    typeof size === "number" ? size : sizeMap[size] ?? sizeMap.md;
-
-  const exists = iconNameSet.has(name);
+    typeof size === "number" ? Math.max(24, size) : sizeMap[size] ?? sizeMap.md;
+  const resolvedName = iconAliases[name] ?? name;
+  const exists = resolvedName in iconMap;
 
   if (!exists) {
     return (
@@ -111,7 +79,7 @@ export default function Icons({
     );
   }
 
-  const IconComponent = iconMap[name];
+  const IconComponent = iconMap[resolvedName];
 
   return (
     <IconComponent

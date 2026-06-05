@@ -91,6 +91,13 @@ const tableData: TableData[] = [
 ];
 
 const allIconNames: IconName[] = [...iconNames];
+const ICON_PREVIEW_SIZE = 24;
+const ICON_LABEL_MAX_LENGTH = 13;
+
+const formatIconLabel = (name: string) =>
+  name.length > ICON_LABEL_MAX_LENGTH
+    ? `${name.slice(0, ICON_LABEL_MAX_LENGTH)}...`
+    : name;
 
 const apiPropsLookup: Record<string, string[]> = {
   button: ["variant", "size", "block", "disabled", "icon", "type", "onClick"],
@@ -200,7 +207,7 @@ export default function Home() {
 
   useEffect(() => {
     const target = document.getElementById("demo-float-button");
-    if (!target) return;
+    if (!target || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -565,7 +572,7 @@ export default function Home() {
         id: "icons",
         title: "Icons",
         category: "DataDisplay",
-        description: "Iconos SVG personalizables por color y tamaño.",
+        description: "Catalogo de mas de 200 iconos SVG listos para copiar y usar.",
         preview: (
           <div className="demo-card__preview demo-card__preview--icons">
             <div className="icons-toolbar">
@@ -586,26 +593,36 @@ export default function Home() {
                 .filter((name) =>
                   name.toLowerCase().includes(iconFilter.toLowerCase())
                 )
-                .map((name) => (
-                  <button
-                    key={name}
-                    type="button"
-                    className="icon-card"
-                    onClick={async () => {
-                      const snippet = `<Icons name="${name}" />`;
-                      try {
-                        await navigator.clipboard.writeText(snippet);
-                        setIconCopied(name);
-                        setTimeout(() => setIconCopied(null), 1600);
-                      } catch {
-                        setIconCopied("Error al copiar");
-                      }
-                    }}
-                  >
-                    <Icons name={name as IconName} size="md" />
-                    <span>{name}</span>
-                  </button>
-                ))}
+                .map((name) => {
+                  const label = formatIconLabel(name);
+
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      className="icon-card"
+                      aria-label={`Copiar icono ${name}`}
+                      onClick={async () => {
+                        const snippet = `<Icons name="${name}" size={${ICON_PREVIEW_SIZE}} />`;
+                        try {
+                          await copyText(snippet);
+                          setIconCopied(name);
+                          window.setTimeout(() => setIconCopied(null), 1600);
+                        } catch {
+                          setIconCopied("Error al copiar");
+                          window.setTimeout(() => setIconCopied(null), 1600);
+                        }
+                      }}
+                    >
+                      <Icons name={name as IconName} size={ICON_PREVIEW_SIZE} />
+                      <Tooltip content={name}>
+                        <span className="icon-card__label" title={name}>
+                          {label}
+                        </span>
+                      </Tooltip>
+                    </button>
+                  );
+                })}
             </div>
           </div>
         ),
